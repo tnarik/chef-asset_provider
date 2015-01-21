@@ -6,8 +6,13 @@ provisioner:
   name: chef_zero
 
 platforms:
-  - name: ubuntu-12.04
-  - name: centos-6.5
+  - name: solaris10-minimal
+    driver:
+      provider: virtualbox
+      box: tnarik/solaris10-minimal-with-chef
+      require_chef_omnibus: 12.0.3
+#  - name: ubuntu-12.04
+#  - name: centos-6.5
 
 suites:
   - name: default
