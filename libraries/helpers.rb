@@ -8,7 +8,12 @@ module LeCafeAutomatique
   module Chef
     class AssetProvider
       def self.url(node, file)
-        "https://#{node[:asset_provider][:username]}:#{node[:asset_provider][:password]}@#{node[:asset_provider][:host]}:#{node[:asset_provider][:port]}/#{file}"
+        "#{node[:asset_provider][:protocol]}://#{node[:asset_provider][:host]}:#{node[:asset_provider][:port]}/#{file}"
+      end
+
+      def self.headers(node)
+        combined_credentials = "#{node[:asset_provider][:username]}:#{node[:asset_provider][:password]}"
+        { "Authorization" => "Basic #{Base64.encode64(combined_credentials)}" }
       end
     end
   end

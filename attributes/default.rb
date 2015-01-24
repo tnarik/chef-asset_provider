@@ -1,0 +1,5 @@
+default['asset_provider']['username'] = 'user'
+default['asset_provider']['password'] = 'password'
+default['asset_provider']['protocol'] = 'http'
+default['asset_provider']['host'] = 'localhost'
+default['asset_provider']['port'] = '8080'
