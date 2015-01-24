@@ -10,22 +10,22 @@ use_inline_resources if defined?(use_inline_resources)
 action :create do
   Chef::Log.info "Fetching #{ new_resource.name } from asset provider if it changed."
 
-    f = remote_file new_resource.file do
-      source ::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.name)
+    f = remote_file new_resource.name do
+      source ::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.source)
       use_etag
-      if new_resource.user
-        user new_resource.user
-      end
+      owner new_resource.owner if new_resource.owner
+      group new_resource.group if new_resource.group
+      mode new_resource.mode if new_resource.mode
     end
 
-    http_request "HEAD #{::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.name)}" do
+    http_request "HEAD #{::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.source)}" do
       message ""
-      url ::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.name)
+      url ::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.source)
       action :head
-      if ::File.exists?(new_resource.file)
-        headers "If-None-Match" => Digest::MD5.file(new_resource.file).base64digest
+      if ::File.exists?(new_resource.name)
+        headers "If-None-Match" => Digest::MD5.file(new_resource.name).base64digest
       end
-      notifies :create, resources(:remote_file => new_resource.file), :immediately
+      notifies :create, resources(:remote_file => new_resource.name), :immediately
     end
 
     new_resource.updated_by_last_action(f.updated_by_last_action?)

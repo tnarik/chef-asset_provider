@@ -8,7 +8,7 @@ end
 use_inline_resources if defined?(use_inline_resources)
 
 action :create do
-  Chef::Log.info "Fetching #{ new_resource.name } from asset provider if it changed."
+  Chef::Log.info "Fetching #{ new_resource.source } from asset provider if it changed."
 
     directory new_resource.tmp_folder do
       recursive true
@@ -24,25 +24,22 @@ action :create do
       else
         command "#{tar_command}"
       end
-      if new_resource.user
-        user new_resource.user
-      end
+      user new_resource.user f new_resource.user
       action :nothing
     end
     
     f = remote_file new_resource.tmp_file do
-      source ::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.name)
+      source ::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.source)
       use_etag
-      if new_resource.user
-        user new_resource.user
-      end
+      owner new_resource.owner if new_resource.owner
+      group new_resource.group if new_resource.group
      # action :nothing
       notifies :run, resources(:execute => "extract_#{new_resource.name}"), :immediately
     end
 
-    http_request "HEAD #{::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.name)}" do
+    http_request "HEAD #{::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.source)}" do
       message ""
-      url ::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.name)
+      url ::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.source)
       action :head
       if ::File.exists?(new_resource.tmp_file)
         headers "If-None-Match" => Digest::MD5.file(new_resource.tmp_file).base64digest
