@@ -10,6 +10,10 @@ use_inline_resources if defined?(use_inline_resources)
 action :create do
   Chef::Log.info "Fetching #{ new_resource.source } from asset provider if it changed."
 
+    if tmp_file.nil?
+      tmp_file = File.join(Chef::Config[:file_cache_path], "#{new_resource.name}.tar")
+    end
+
     directory new_resource.tmp_folder do
       recursive true
       mode 0770
@@ -18,13 +22,13 @@ action :create do
 
     execute "extract_#{new_resource.name}" do
       tar_command = "tar xvf #{new_resource.tmp_file} -C #{new_resource.tmp_folder}"
-      chown_command = "chown -R #{new_resource.chown_user}:#{new_resource.chown_group} #{new_resource.tmp_folder}/#{new_resource.name}"
       if new_resource.chown_user
+        chown_command = "chown -R #{new_resource.chown_user}:#{new_resource.chown_group} #{new_resource.tmp_folder}/#{new_resource.name}"
         command "#{tar_command}; #{chown_command}"
       else
         command tar_command
       end
-      user new_resource.user f new_resource.user
+      user new_resource.user if new_resource.user
       action :nothing
     end
     
