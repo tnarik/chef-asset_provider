@@ -27,7 +27,7 @@ action :create do
       if ::File.exists?(new_resource.name)
         headers "If-None-Match" => Digest::MD5.file(new_resource.name).base64digest
       end
-      notifies :create, resources(:remote_file => new_resource.name), :immediately
+      notifies :create, "remote_file[#{new_resource.name}]", :immediately
     end
 
     new_resource.updated_by_last_action(f.updated_by_last_action?)
