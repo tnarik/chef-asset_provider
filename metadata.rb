@@ -6,7 +6,7 @@ description      'Installs/Configures asset_provider'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 source_url       'https://github.com/tnarik/chef-asset_provider'
 issues_url       'https://github.com/tnarik/chef-asset_provider/issues'
-version          '0.2.0'
+version          '0.2.1'
 
 %w{centos fedora redhat debian ubuntu solaris solaris2}.each do |os|
   supports os

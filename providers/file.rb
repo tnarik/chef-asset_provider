@@ -12,21 +12,19 @@ action :create do
 
     f = remote_file new_resource.name do
       source ::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.source)
-      headers ::LeCafeAutomatique::Chef::AssetProvider.headers(node)
+      headers ::LeCafeAutomatique::Chef::AssetProvider.headers(node, new_resource.name)
       use_etag
       owner new_resource.owner if new_resource.owner
       group new_resource.group if new_resource.group
       mode new_resource.mode if new_resource.mode
+      action :nothing
     end
 
     http_request "HEAD #{::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.source)}" do
       message ""
       url ::LeCafeAutomatique::Chef::AssetProvider.url(node, new_resource.source)
-      headers ::LeCafeAutomatique::Chef::AssetProvider.headers(node)
+      headers ::LeCafeAutomatique::Chef::AssetProvider.headers(node, new_resource.name)
       action :head
-      if ::File.exists?(new_resource.name)
-        headers "If-None-Match" => Digest::MD5.file(new_resource.name).base64digest
-      end
       notifies :create, "remote_file[#{new_resource.name}]", :immediately
     end
 
